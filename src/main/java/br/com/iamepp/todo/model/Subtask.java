@@ -6,27 +6,22 @@ import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
-import static br.com.iamepp.todo.model.Status.DONE;
-import static br.com.iamepp.todo.model.Status.TODO;
-import static javax.persistence.EnumType.STRING;
-import static javax.persistence.GenerationType.AUTO;
-
 @Data
 @Entity
 public class Subtask {
     @Id
-    @GeneratedValue(strategy = AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "subtask_id")
     private Long id;
     @NotBlank
     @Column(name = "description", nullable = false)
     private String description;
     @NotNull
-    @Enumerated(STRING)
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private Status status = TODO;
+    private Status status = Status.TODO;
 
     public void complete() {
-        this.status = DONE;
+        this.status = Status.DONE;
     }
 }

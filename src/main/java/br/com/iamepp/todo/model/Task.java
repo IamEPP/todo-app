@@ -1,24 +1,25 @@
 package br.com.iamepp.todo.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.List;
 
-import static br.com.iamepp.todo.model.Status.DONE;
-import static br.com.iamepp.todo.model.Status.TODO;
-import static javax.persistence.CascadeType.PERSIST;
-import static javax.persistence.CascadeType.REMOVE;
-import static javax.persistence.EnumType.STRING;
 import static javax.persistence.FetchType.EAGER;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 public class Task {
     @Id
     @Column(name = "task_id")
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @Column(name = "description")
@@ -26,19 +27,22 @@ public class Task {
     private String description;
 
     @OneToMany(
-            cascade = {REMOVE, PERSIST},
+            cascade = {CascadeType.REMOVE, CascadeType.PERSIST},
             orphanRemoval = true,
             fetch = EAGER
     )
-    private List<Subtask> subtasks;
+    private List<Subtask> subtasks = new ArrayList<>();
 
     @Column(name = "status", nullable = false)
-    @Enumerated(value = STRING)
+    @Enumerated(value = EnumType.STRING)
     @NotNull
-    private Status status = TODO;
+    private Status status = Status.TODO;
 
     public void complete() {
-        this.status = DONE;
+        this.status = Status.DONE;
     }
 
+    public void addSubtask(Subtask subtask) {
+        this.subtasks.add(subtask);
+    }
 }

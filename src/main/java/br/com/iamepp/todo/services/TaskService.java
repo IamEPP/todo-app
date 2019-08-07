@@ -12,4 +12,6 @@ public interface TaskService {
     void remove(Task task);
 
     Optional<Task> findById(Long id);
+
+    Iterable<Task> findAll();
 }

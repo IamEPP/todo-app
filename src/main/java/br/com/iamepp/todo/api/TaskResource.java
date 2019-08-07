@@ -7,6 +7,7 @@ import br.com.iamepp.todo.services.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -14,8 +15,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.validation.Valid;
 import java.net.URI;
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -31,11 +30,11 @@ public class TaskResource {
     }
 
     @GetMapping
-    public List<Task> allTasks() {
-        return Collections.emptyList();
+    public Iterable<Task> allTasks() {
+        return taskService.findAll();
     }
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<Task> addTask(@RequestBody @Valid Task task, BindingResult bindingResult, UriComponentsBuilder builder) {
         BindingErrorsResponse errors = new BindingErrorsResponse();
         HttpHeaders headers = new HttpHeaders();
@@ -49,7 +48,7 @@ public class TaskResource {
         return new ResponseEntity<>(savedTask, headers, HttpStatus.CREATED);
     }
 
-    @PostMapping("/{parentId}/subtasks")
+    @PostMapping(value = "/{parentId}/subtasks", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<Subtask> addSubTask(@PathVariable("parentId") Long taskId,
                                               @RequestBody @Valid Subtask subtask,
                                               BindingResult bindingResult,
@@ -64,6 +63,11 @@ public class TaskResource {
             return new ResponseEntity<>(headers, HttpStatus.BAD_REQUEST);
         }
         Subtask saved = subtaskService.save(subtask);
+        task.ifPresent(t -> {
+            t.addSubtask(saved);
+            taskService.save(t);
+        });
+
         URI location = builder.path("/api/tasks/{taskId}/{subtaskId}").buildAndExpand(taskId, saved.getId()).toUri();
         headers.setLocation(location);
         return new ResponseEntity<>(subtask, headers, HttpStatus.CREATED);

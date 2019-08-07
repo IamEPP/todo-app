@@ -57,4 +57,9 @@ public class TaskServiceImpl implements TaskService {
     public Optional<Task> findById(Long id) {
         return taskRepository.findById(id);
     }
+
+    @Override
+    public Iterable<Task> findAll() {
+        return taskRepository.findAll();
+    }
 }

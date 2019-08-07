@@ -52,7 +52,10 @@ public class BindingErrorsResponse {
             BindingError error = new BindingError();
             error.setObjectName(fieldError.getObjectName());
             error.setFieldName(fieldError.getField());
-            error.setFieldValue(fieldError.getRejectedValue().toString());
+            if (fieldError.getRejectedValue() == null)
+                error.setFieldValue(null);
+            else
+                error.setFieldValue(fieldError.getRejectedValue().toString());
             error.setErrorMessage(fieldError.getDefaultMessage());
             addError(error);
         }
